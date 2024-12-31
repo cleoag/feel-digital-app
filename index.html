@@ -54,7 +54,7 @@
 <body>
     <div class="container">
         <div class="card">
-            <span class="version">v1.1.1</span>
+            <span class="version">v1.1.2</span>
             <h2>Welcome to Mini App</h2>
             <p>This is a basic Telegram Mini App template.</p>
         </div>
@@ -69,41 +69,9 @@
         
         // Debug logging
         console.log('WebApp initialized:', webapp);
-        console.log('Chat type:', webapp.initDataUnsafe?.chat?.type);
-        console.log('Chat ID:', webapp.initDataUnsafe?.chat?.id);
-        
-        // Verify channel
-        function verifyChannel() {
-            const chat = webapp.initDataUnsafe?.chat;
-            if (!chat || chat.type !== 'channel') {
-                webapp.showPopup({
-                    title: 'Access Denied',
-                    message: 'This app can only be accessed through the specified channel',
-                    buttons: [{text: 'OK', type: 'ok'}]
-                });
-                return false;
-            }
-            
-            // Verify specific channel ID
-            if (chat.id !== -1001080978215) {
-                webapp.showPopup({
-                    title: 'Access Denied',
-                    message: 'This app is only available in the designated channel',
-                    buttons: [{text: 'OK', type: 'ok'}]
-                });
-                console.log('Attempted access from wrong channel:', chat.id);
-                return false;
-            }
-            return true;
-        }
         
         // Ensure WebApp is ready
         webapp.ready();
-        
-        // Verify channel access on load
-        if (!verifyChannel()) {
-            console.log('Invalid access attempt');
-        }
 
         // Set header color
         webapp.setHeaderColor('secondary_bg_color');
@@ -112,8 +80,6 @@
         const mainButton = document.getElementById('mainButton');
         mainButton.addEventListener('click', () => {
             try {
-                // Verify channel access before showing info
-                if (!verifyChannel()) return;
                 
                 const userInfo = {
                     id: webapp.initDataUnsafe?.user?.id || 'Not available',
