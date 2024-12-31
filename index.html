@@ -54,7 +54,7 @@
 <body>
     <div class="container">
         <div class="card">
-            <span class="version">v1.0.2</span>
+            <span class="version">v1.0.3</span>
             <h2>Welcome to Mini App</h2>
             <p>This is a basic Telegram Mini App template.</p>
         </div>
@@ -97,6 +97,14 @@
                     message: `ID: ${userInfo.id}\nName: ${userInfo.name}\nUsername: ${userInfo.username}`,
                     buttons: [{text: 'OK', type: 'ok'}]
                 });
+            } catch (error) {
+                console.error('Error showing user info:', error);
+                webapp.showPopup({
+                    title: 'Error',
+                    message: 'Could not retrieve user information',
+                    buttons: [{text: 'OK', type: 'ok'}]
+                });
+            }
         });
 
         // Theme toggle handler
