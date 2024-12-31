@@ -54,9 +54,8 @@
 <body>
     <div class="container">
         <div class="card">
-            <span class="version">v1.1.2</span>
-            <h2>Welcome to Mini App</h2>
-            <p>This is a basic Telegram Mini App template.</p>
+            <span class="version">v1.2.0</span>
+            <div id="userGreeting">Loading...</div>
         </div>
 
         <button class="button" id="mainButton">Show User Info</button>
@@ -72,6 +71,35 @@
         
         // Ensure WebApp is ready
         webapp.ready();
+
+        // Get user info and display greeting
+        function displayUserInfo() {
+            const user = webapp.initDataUnsafe?.user;
+            const greetingElement = document.getElementById('userGreeting');
+            
+            if (user) {
+                const userName = user.first_name || 'there';
+                greetingElement.innerHTML = `
+                    <h2>Hello, ${userName}! 👋</h2>
+                    <p>Welcome to our Mini App.</p>
+                    <div class="user-info">
+                        <p><strong>Your Info:</strong></p>
+                        <p>Name: ${user.first_name || 'N/A'} ${user.last_name || ''}</p>
+                        <p>Username: @${user.username || 'N/A'}</p>
+                        <p>Language: ${user.language_code || 'N/A'}</p>
+                    </div>
+                `;
+            } else {
+                greetingElement.innerHTML = `
+                    <h2>Hello there! 👋</h2>
+                    <p>Welcome to our Mini App.</p>
+                    <p>Could not load user information.</p>
+                `;
+            }
+        }
+
+        // Display user info immediately
+        displayUserInfo();
 
         // Set header color
         webapp.setHeaderColor('secondary_bg_color');
