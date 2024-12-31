@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Mini App Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/telegram-web-app/7.0.0/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 16px;
+            color: var(--tg-theme-text-color, #000);
+            background: var(--tg-theme-bg-color, #fff);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .button {
+            background: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #fff);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 8px 0;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>Welcome to Mini App</h2>
+            <p>This is a basic Telegram Mini App template.</p>
+        </div>
+
+        <button class="button" id="mainButton">Show User Info</button>
+        <button class="button" id="themeButton">Toggle Dark Mode</button>
+    </div>
+
+    <script>
+        // Initialize Telegram WebApp
+        const webapp = window.Telegram.WebApp;
+        webapp.ready();
+
+        // Set header color
+        webapp.setHeaderColor('secondary_bg_color');
+
+        // Main Button handler
+        const mainButton = document.getElementById('mainButton');
+        mainButton.addEventListener('click', () => {
+            const userInfo = {
+                id: webapp.initDataUnsafe?.user?.id || 'Not available',
+                name: webapp.initDataUnsafe?.user?.first_name || 'Not available',
+                username: webapp.initDataUnsafe?.user?.username || 'Not available'
+            };
+            
+            alert(`User Info:\nID: ${userInfo.id}\nName: ${userInfo.name}\nUsername: ${userInfo.username}`);
+        });
+
+        // Theme toggle handler
+        const themeButton = document.getElementById('themeButton');
+        themeButton.addEventListener('click', () => {
+            if (webapp.colorScheme === 'dark') {
+                webapp.setBackgroundColor('#ffffff');
+            } else {
+                webapp.setBackgroundColor('#2f2f2f');
+            }
+        });
+
+        // Close app when back button is pressed
+        webapp.onEvent('backButtonClicked', () => {
+            webapp.close();
+        });
+    </script>
+</body>
+</html>
