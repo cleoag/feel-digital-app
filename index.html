@@ -55,7 +55,7 @@
 <body>
     <div class="container">
         <div class="card">
-            <span class="version">v1.3.0</span>
+            <span class="version">v1.3.2</span>
             <div id="userGreeting">Loading...</div>
         </div>
 
@@ -118,7 +118,7 @@
                 lowLatencyMode: true
             });
             
-            // Example HLS stream - NASA Live Stream
+            // Example HLS stream - Apple test stream
             const streamUrl = 'http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8';
             
             hls.loadSource(streamUrl);
@@ -150,13 +150,48 @@
                     }
                 }
             });
-        }
-        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             // For Safari
             video.src = streamUrl;
             video.addEventListener('loadedmetadata', function() {
                 video.play();
             });
+        }
+
+        // Main Button Handler
+        mainButton.addEventListener('click', () => {
+            try {
+                const userInfo = {
+                    id: webapp.initDataUnsafe?.user?.id || 'Not available',
+                    name: webapp.initDataUnsafe?.user?.first_name || 'Not available',
+                    username: webapp.initDataUnsafe?.user?.username || 'Not available'
+                };
+                
+                console.log('User clicked button, info:', userInfo);
+                
+                webapp.showPopup({
+                    title: 'User Information',
+                    message: `ID: ${userInfo.id}\nName: ${userInfo.name}\nUsername: ${userInfo.username}`,
+                    buttons: [{text: 'OK', type: 'ok'}]
+                });
+            } catch (error) {
+                console.error('Error showing user info:', error);
+                webapp.showPopup({
+                    title: 'Error',
+                    message: 'Could not retrieve user information',
+                    buttons: [{text: 'OK', type: 'ok'}]
+                });
+            }
+        });
+
+        // Theme toggle handler
+        themeButton.addEventListener('click', () => {
+            if (webapp.colorScheme === 'dark') {
+                webapp.setBackgroundColor('#ffffff');
+            } else {
+                webapp.setBackgroundColor('#2f2f2f');
+            }
+        });
 
         // Set header color
         webapp.setHeaderColor('secondary_bg_color');
