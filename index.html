@@ -53,7 +53,15 @@
     <script>
         // Initialize Telegram WebApp
         const webapp = window.Telegram.WebApp;
+        
+        // Debug logging
+        console.log('WebApp initialized:', webapp);
+        
+        // Ensure WebApp is ready
         webapp.ready();
+        
+        // Log when ready
+        console.log('WebApp ready state:', webapp.isExpanded);
 
         // Set header color
         webapp.setHeaderColor('secondary_bg_color');
@@ -61,13 +69,21 @@
         // Main Button handler
         const mainButton = document.getElementById('mainButton');
         mainButton.addEventListener('click', () => {
-            const userInfo = {
-                id: webapp.initDataUnsafe?.user?.id || 'Not available',
-                name: webapp.initDataUnsafe?.user?.first_name || 'Not available',
-                username: webapp.initDataUnsafe?.user?.username || 'Not available'
-            };
-            
-            alert(`User Info:\nID: ${userInfo.id}\nName: ${userInfo.name}\nUsername: ${userInfo.username}`);
+            try {
+                const userInfo = {
+                    id: webapp.initDataUnsafe?.user?.id || 'Not available',
+                    name: webapp.initDataUnsafe?.user?.first_name || 'Not available',
+                    username: webapp.initDataUnsafe?.user?.username || 'Not available'
+                };
+                
+                console.log('User clicked button, info:', userInfo);
+                
+                // Use Telegram's native popup instead of alert
+                webapp.showPopup({
+                    title: 'User Information',
+                    message: `ID: ${userInfo.id}\nName: ${userInfo.name}\nUsername: ${userInfo.username}`,
+                    buttons: [{text: 'OK', type: 'ok'}]
+                });
         });
 
         // Theme toggle handler
