@@ -55,14 +55,15 @@
 <body>
     <div class="container">
         <div class="card">
-            <span class="version">v1.3.6</span>
+            <span class="version">v1.4.0</span>
             <div id="userGreeting">Loading...</div>
         </div>
 
         <div class="card">
             <h3>Live Stream</h3>
             <div class="video-container">
-                <video id="video" controls></video>
+                <video id="video" controls playsinline></video>
+                <button id="playButton" class="play-button"></button>
             </div>
         </div>
 
@@ -111,6 +112,7 @@
 
         // Initialize HLS
         const video = document.getElementById('video');
+        const playButton = document.getElementById('playButton');
         console.log('Video element found:', video);
         console.log('Platform:', webapp.platform);
         console.log('WebApp version:', webapp.version);
@@ -122,15 +124,27 @@
         console.log('Stream URL:', streamUrl);
 
         // Function to show debug info in UI
-        function showDebugInfo(message) {
+        function showDebugInfo(message, isError = false) {
             const debugDiv = document.createElement('div');
             debugDiv.style.padding = '8px';
             debugDiv.style.margin = '4px 0';
-            debugDiv.style.background = 'rgba(0,0,0,0.1)';
+            debugDiv.style.background = isError ? 'rgba(255,0,0,0.1)' : 'rgba(0,0,0,0.1)';
             debugDiv.style.borderRadius = '4px';
             debugDiv.textContent = message;
             video.parentNode.insertBefore(debugDiv, video.nextSibling);
         }
+
+        // Function to handle play button click
+        function handlePlayButtonClick() {
+            video.play().catch(function(error) {
+                console.log('Play error after click:', error);
+                showDebugInfo('Please tap the video to play', true);
+            });
+            playButton.style.display = 'none';
+        }
+
+        // Add play button click handler
+        playButton.addEventListener('click', handlePlayButtonClick);
 
         if (Hls.isSupported()) {
             showDebugInfo('HLS.js is supported');
@@ -187,7 +201,8 @@
                 console.log('Video metadata loaded');
                 video.play().catch(function(error) {
                     console.log('Play error:', error);
-                    showDebugInfo('Play error: ' + error.message);
+                    showDebugInfo('Tap to play video', true);
+                    playButton.style.display = 'block';
                 });
             });
             video.addEventListener('error', function(e) {
