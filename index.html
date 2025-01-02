@@ -55,7 +55,7 @@
 <body>
     <div class="container">
         <div class="card">
-            <span class="version">v2.0.0</span>
+            <span class="version">v2.1.0</span>
             <h3>Camera View</h3>
             <div class="camera-container">
                 <video id="camera" autoplay playsinline></video>
@@ -107,23 +107,45 @@
         let currentFacingMode = 'environment';
         const camera = document.getElementById('camera');
         const switchButton = document.getElementById('switchCamera');
+        let currentStream = null;
 
         async function initCamera(facingMode = 'environment') {
             try {
                 // Stop any existing stream
-                if (camera.srcObject) {
-                    camera.srcObject.getTracks().forEach(track => track.stop());
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
                 }
 
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
+                // Get device screen size
+                const screenWidth = window.innerWidth;
+                const screenHeight = window.innerHeight;
+                const isLandscape = screenWidth > screenHeight;
+
+                // Set ideal resolution based on screen size and orientation
+                const constraints = {
+                    video: {
                         facingMode: facingMode,
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    } 
-                });
+                        width: { ideal: isLandscape ? 1920 : 1080 },
+                        height: { ideal: isLandscape ? 1080 : 1920 },
+                        aspectRatio: isLandscape ? 16/9 : 9/16
+                    }
+                };
+
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 camera.srcObject = stream;
+                currentStream = stream;
                 currentFacingMode = facingMode;
+
+                // Get actual video track settings
+                const videoTrack = stream.getVideoTracks()[0];
+                const settings = videoTrack.getSettings();
+                console.log('Camera settings:', settings);
+
+                // Update container aspect ratio if needed
+                const actualAspect = settings.width / settings.height;
+                document.querySelector('.camera-container').style.aspectRatio = 
+                    isLandscape ? '16/9' : '9/16';
+
             } catch (err) {
                 console.error('Camera error:', err);
                 const errorDiv = document.createElement('div');
@@ -133,6 +155,13 @@
                 switchButton.style.display = 'none';
             }
         }
+
+        // Handle orientation changes
+        window.addEventListener('resize', () => {
+            if (currentStream) {
+                initCamera(currentFacingMode);
+            }
+        });
 
         // Switch camera handler
         switchButton.addEventListener('click', () => {
