@@ -54,32 +54,16 @@
 </head>
 <body>
     <div class="container">
-        <div class="tabs">
-            <div class="tab active" data-tab="camera">Camera</div>
-            <div class="tab" data-tab="player">Player</div>
-        </div>
-
-        <div id="cameraTab" class="tab-content active">
-            <div class="card">
-                <h3>Camera View</h3>
-                <div class="camera-container">
-                    <video id="camera" autoplay playsinline></video>
-                </div>
-            </div>
-        </div>
-
-        <div id="playerTab" class="tab-content">
-            <div class="card">
-                <span class="version">v1.5.0</span>
-                <div id="userGreeting">Loading...</div>
-            </div>
-
-            <div class="card">
-                <h3>Live Stream</h3>
-                <div class="video-container">
-                    <video id="video" controls playsinline></video>
-                    <button id="playButton" class="play-button"></button>
-                </div>
+        <div class="card">
+            <span class="version">v2.0.0</span>
+            <h3>Camera View</h3>
+            <div class="camera-container">
+                <video id="camera" autoplay playsinline></video>
+                <button id="switchCamera" class="switch-camera">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5V13H9v2.5L5.5 12 9 8.5V11h6V8.5l3.5 3.5-3.5 3.5z"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
@@ -120,49 +104,44 @@
             }
         }
 
-        // Tab switching functionality
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs and contents
-                tabs.forEach(t => t.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-
-                // Add active class to clicked tab and corresponding content
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
-            });
-        });
-
-        // Initialize camera
+        let currentFacingMode = 'environment';
         const camera = document.getElementById('camera');
+        const switchButton = document.getElementById('switchCamera');
 
-        async function initCamera() {
+        async function initCamera(facingMode = 'environment') {
             try {
+                // Stop any existing stream
+                if (camera.srcObject) {
+                    camera.srcObject.getTracks().forEach(track => track.stop());
+                }
+
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
-                        facingMode: 'environment',
+                        facingMode: facingMode,
                         width: { ideal: 1280 },
                         height: { ideal: 720 }
                     } 
                 });
                 camera.srcObject = stream;
+                currentFacingMode = facingMode;
             } catch (err) {
                 console.error('Camera error:', err);
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'camera-error';
                 errorDiv.textContent = 'Camera access denied or not available';
                 camera.parentNode.appendChild(errorDiv);
+                switchButton.style.display = 'none';
             }
         }
 
+        // Switch camera handler
+        switchButton.addEventListener('click', () => {
+            const newMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+            initCamera(newMode);
+        });
+
         // Initialize camera when page loads
         initCamera();
-
-        // Display user info immediately
-        displayUserInfo();
 
         // Display user info immediately
         displayUserInfo();
