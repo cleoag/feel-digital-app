@@ -55,7 +55,7 @@
 <body>
     <div class="container">
         <div class="card">
-            <span class="version">v1.4.0</span>
+            <span class="version">v1.4.1</span>
             <div id="userGreeting">Loading...</div>
         </div>
 
@@ -66,9 +66,6 @@
                 <button id="playButton" class="play-button"></button>
             </div>
         </div>
-
-        <button class="button" id="mainButton">Show User Info</button>
-        <button class="button" id="themeButton">Toggle Dark Mode</button>
     </div>
 
     <script>
@@ -110,14 +107,12 @@
         // Display user info immediately
         displayUserInfo();
 
+        // Display user info immediately
+        displayUserInfo();
+
         // Initialize HLS
         const video = document.getElementById('video');
         const playButton = document.getElementById('playButton');
-        console.log('Video element found:', video);
-        console.log('Platform:', webapp.platform);
-        console.log('WebApp version:', webapp.version);
-        console.log('Viewport height:', webapp.viewportHeight);
-        console.log('Color scheme:', webapp.colorScheme);
 
         // Define stream URL at the top level
         const streamUrl = 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8';
@@ -212,41 +207,6 @@
         } else {
             showDebugInfo('HLS playback not supported on this platform');
         }
-
-        // Main Button Handler
-        mainButton.addEventListener('click', () => {
-            try {
-                const userInfo = {
-                    id: webapp.initDataUnsafe?.user?.id || 'Not available',
-                    name: webapp.initDataUnsafe?.user?.first_name || 'Not available',
-                    username: webapp.initDataUnsafe?.user?.username || 'Not available'
-                };
-                
-                console.log('User clicked button, info:', userInfo);
-                
-                webapp.showPopup({
-                    title: 'User Information',
-                    message: `ID: ${userInfo.id}\nName: ${userInfo.name}\nUsername: ${userInfo.username}`,
-                    buttons: [{text: 'OK', type: 'ok'}]
-                });
-            } catch (error) {
-                console.error('Error showing user info:', error);
-                webapp.showPopup({
-                    title: 'Error',
-                    message: 'Could not retrieve user information',
-                    buttons: [{text: 'OK', type: 'ok'}]
-                });
-            }
-        });
-
-        // Theme toggle handler
-        themeButton.addEventListener('click', () => {
-            if (webapp.colorScheme === 'dark') {
-                webapp.setBackgroundColor('#ffffff');
-            } else {
-                webapp.setBackgroundColor('#2f2f2f');
-            }
-        });
 
         // Set header color
         webapp.setHeaderColor('secondary_bg_color');
