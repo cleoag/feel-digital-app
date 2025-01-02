@@ -55,7 +55,7 @@
 <body>
     <div class="container">
         <div class="card">
-            <span class="version">v1.3.4</span>
+            <span class="version">v1.3.5</span>
             <div id="userGreeting">Loading...</div>
         </div>
 
@@ -111,51 +111,89 @@
 
         // Initialize HLS
         const video = document.getElementById('video');
+        console.log('Video element found:', video);
+        console.log('Platform:', webapp.platform);
+        console.log('WebApp version:', webapp.version);
+        console.log('Viewport height:', webapp.viewportHeight);
+        console.log('Color scheme:', webapp.colorScheme);
+
+        // Function to show debug info in UI
+        function showDebugInfo(message) {
+            const debugDiv = document.createElement('div');
+            debugDiv.style.padding = '8px';
+            debugDiv.style.margin = '4px 0';
+            debugDiv.style.background = 'rgba(0,0,0,0.1)';
+            debugDiv.style.borderRadius = '4px';
+            debugDiv.textContent = message;
+            video.parentNode.insertBefore(debugDiv, video.nextSibling);
+        }
+
         if (Hls.isSupported()) {
+            showDebugInfo('HLS.js is supported');
             const hls = new Hls({
-                debug: false,
+                debug: true,
                 enableWorker: true,
-                lowLatencyMode: true
+                lowLatencyMode: true,
+                xhrSetup: function(xhr, url) {
+                    console.log('Loading URL:', url);
+                }
             });
             
             // Example HLS stream - Tears of Steel demo
             const streamUrl = 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8';
+            console.log('Attempting to load stream:', streamUrl);
             
             hls.loadSource(streamUrl);
             hls.attachMedia(video);
             
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                console.log('Video manifest loaded');
+            hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+                console.log('Video manifest loaded, levels:', data.levels.length);
+                showDebugInfo(`Manifest loaded with ${data.levels.length} quality levels`);
                 video.play().catch(function(error) {
                     console.log("Play prevented:", error);
+                    showDebugInfo('Play prevented: ' + error.message);
                 });
             });
 
             hls.on(Hls.Events.ERROR, function(event, data) {
                 console.log('HLS error:', data);
+                showDebugInfo('HLS error: ' + data.type + ' - ' + data.details);
                 if (data.fatal) {
                     switch(data.type) {
                         case Hls.ErrorTypes.NETWORK_ERROR:
                             console.log("Network error, trying to recover");
+                            showDebugInfo('Attempting to recover from network error');
                             hls.startLoad();
                             break;
                         case Hls.ErrorTypes.MEDIA_ERROR:
                             console.log("Media error, trying to recover");
+                            showDebugInfo('Attempting to recover from media error');
                             hls.recoverMediaError();
                             break;
                         default:
                             console.log("Fatal error, stopping");
+                            showDebugInfo('Fatal error occurred');
                             hls.destroy();
                             break;
                     }
                 }
             });
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // For Safari
+            showDebugInfo('Using native HLS support');
             video.src = streamUrl;
             video.addEventListener('loadedmetadata', function() {
-                video.play();
+                console.log('Video metadata loaded');
+                video.play().catch(function(error) {
+                    console.log('Play error:', error);
+                    showDebugInfo('Play error: ' + error.message);
+                });
             });
+            video.addEventListener('error', function(e) {
+                console.log('Video error:', video.error);
+                showDebugInfo('Video error: ' + video.error?.message);
+            });
+        } else {
+            showDebugInfo('HLS playback not supported on this platform');
         }
 
         // Main Button Handler
